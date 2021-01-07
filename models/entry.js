@@ -12,7 +12,7 @@ const Entry = db.define('entry', {
     entryDescription: {
         type: DataTypes.TEXT,
     },
-    user: {
+    owner: {
         type: DataTypes.INTEGER
     }
 })
