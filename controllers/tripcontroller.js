@@ -38,41 +38,6 @@ router.post('/create', validateSession, async (req, res) => {
     }
 })
 
-
-// --> CREATE A TRIP (ES5)
-// router.post('/create', (req, res) => {
-//   const newTrip = {
-//       tripName: req.body.trip.tripName,
-//       tripDescription: req.body.trip.tripDescription,
-//       tripMembers: req.body.trip.tripMembers,
-//       owner: req.user.id
-//   }
-//   Trip.create(newTrip)
-//   .then(trip => res.status(200).json(trip))
-//   .catch(err => res.status(500).json({ error: err }))
-// });
-
-
-// // --> UPDATE A TRIP (PUT):
-// // ! Restrict access to indivudal user
-// router.put("/:id", validateSession, (req, res) => {
-//       const query = req.params.id;
-//       Trip.update(req.body, { where: { id: query } })
-//         .then((tripsUpdated) => {
-//           Trip.findOne({ where: { id: query } })
-//           .then((locatedUpdatedTrip) => {
-//             res.status(200).json({
-//               trip: locatedUpdatedTrip,
-//               message: "Trip updated!",
-//               tripsChanged: tripsUpdated,
-//             });
-//           });
-//         })
-//         .catch((err) => res.json({
-//           err
-//         }));
-// });
-
 router.put('/update/:id', validateSession, function (req, res) {
   console.log(req.body)
   const updateTrip = {

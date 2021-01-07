@@ -35,23 +35,7 @@ router.get('/', validateSession, (req, res) => {
 //     }
 
 
-//   User.create({
-//     email: req.user.body.email,
-//     username: req.user.body.username,
-//     password: bcrypt.hashSync(req.body.password, 13),
-//   })
-//   .then(
-//     function createSuccess(user) {
-//         let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
-//         res.json({
-//             user: user,
-//             message: 'User successfully created!',
-//             sessionToken: token
-//         });
-//     }  
-// )
-//   .catch(err => res.status(500).json({ error: err }))
-// })
+
 
 
 router.post('/register', async (req, res) => {
