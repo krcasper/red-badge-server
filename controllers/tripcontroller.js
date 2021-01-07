@@ -12,7 +12,7 @@ router.get('/', validateSession, (req, res) => {
 
 // ---> FETCH A SINGLE TRIP
 //! NOT WORKING
-router.get("/:tripID", (req, res) => {
+router.get("/:tripID", validateSession, (req, res) => {
   Trip.findOne({ where: { trip: req.params.tripID } })
     .then((profile) => res.status(200).json(profile))
     .catch((err) => res.status(500).json({ error: err }));
@@ -40,7 +40,7 @@ router.post('/create', validateSession, async (req, res) => {
 })
 
 // --> UPDATE A TRIP (PUT):
-router.put("/:id", (req, res) => {
+router.put("/:id", validateSession, (req, res) => {
       const query = req.params.id;
       Trip.update(req.body, { where: { id: query } })
         .then((tripsUpdated) => {
@@ -60,7 +60,7 @@ router.put("/:id", (req, res) => {
 
 
 // --> DELETE A TRIP:
-router.delete('/:id', (req, res) => {
+router.delete('/:id', validateSession, (req, res) => {
     Trip.destroy({
       where: { id: req.params.id}
     })
