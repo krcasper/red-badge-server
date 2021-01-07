@@ -1,26 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const {Trip} = require('../models');
+const {Trip, Entry} = require('../models');
 const validateSession = require('../middleware/validate-session');
 
-// --> FETCH/GET ALL TRIPS FROM ALL USERS (ADMIN)
+// --> FETCH ALL TRIPS 
 router.get('/', validateSession, (req, res) => {
     Trip.findAll()
     .then(trips => res.status(200).json(trips))
     .catch(err => res.status(500).json({ error: err }))
 });
 
-// ---> FETCH ALL TRIPS FOR A specific USER - NOW WORKING!
-router.get("/:userID", validateSession, (req, res) => {
-  Trip.findAll({ where: { owner: req.user.id } })
-    .then((trip) => res.status(200).json(trip))
+// --> FETCH ALL TRIPS FOR A SINGLE USER (must have token!)
+router.get("/my-trips", validateSession, (req, res) => {
+  let userid = req.user.id
+  Trip.findAll({
+      where: { owner: userid }
+  })
+  .then(trips => res.status(200).json(trips))
+  .catch(err => res.status(500).json({ error: err }))
 });
 
-// ---> FETCH A SINGLE TRIP
-//! NOT WORKING
-router.get("/:tripID", validateSession, (req, res) => {
-  Trip.findOne({ where: { trip: req.params.tripID } })
-    .then((profile) => res.status(200).json(profile))
+// ---> FETCH A SINGLE TRIP BY ID NUMBER
+router.get("/:id", validateSession, (req, res) => {
+  Trip.findOne({ where: { id: req.params.id } })
+    .then((trip) => res.status(200).json(trip))
     .catch((err) => res.status(500).json({ error: err }));
 });
 
@@ -45,7 +48,7 @@ router.post('/create', validateSession, async (req, res) => {
     }
 })
 
-
+// --> UPDATE A TRIP (PUT):
 router.put('/update/:id', validateSession, function (req, res) {
   console.log(req.body)
   const updateTrip = {
@@ -67,36 +70,7 @@ router.put('/update/:id', validateSession, function (req, res) {
             .catch((error) => res.status(500).json({ error: error.message || serverErrorMsg  }));
       }
     })
-  
-
-// --> UPDATE A TRIP (PUT):
-/* router.put("/:id", validateSession, (req, res) => {
-      const query = req.params.id;
-      Trip.update(req.body, { where: { id: query } })
-        .then((tripsUpdated) => {
-          Trip.findOne({ where: { id: query } })
-          .then((locatedUpdatedTrip) => {
-            res.status(200).json({
-              trip: locatedUpdatedTrip,
-              message: "Trip updated!",
-              tripsChanged: tripsUpdated,
-            });
-          });
-        })
-        .catch((err) => res.json({
-          err
-        }));
-*/
-
 });
-
-// router.get("/:id", (req, res) => {
-//   Profile.findOne({ where: { user: req.params.user } })
-//     .then((profile) => res.status(200).json(profile))
-//     .catch((err) => res.status(500).json({ error: err }));
-// });
-
-
 
 // --> DELETE A TRIP:
 router.delete('/:id', validateSession, (req, res) => {
@@ -106,5 +80,37 @@ router.delete('/:id', validateSession, (req, res) => {
     .then(trip => res.status(200).json(trip))
     .catch(err => res.json(err))
 })
+
+
+
+// --> CREATING ENTRY FOR A TRIP (from entry.js model)
+
+router.post('/:tripID/new-entry', validateSession, async (req, res) => {
+  console.log(req.params)
+  try {
+      const {entryName, entryDate, entryDescription} = req.body;
+
+      let newEntry = await Entry.create({
+          entryName, entryDate, entryDescription, trip: req.params.tripID
+      });
+
+      res.status(200).json({
+          entry: newEntry,
+          message: 'Entry created!'
+      })
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({
+          message: 'Entry Creation Failed'
+      })
+  }
+});
+
+// --> GET ALL ENTRIES FOR A SINGLE TRIP
+router.get("/:tripID/entries", validateSession, (req, res) => {
+  Entry.findAll({ where: { trip: req.params.tripID } })
+    .then((trip) => res.status(200).json(trip))
+    .catch(err => res.json(err))
+});
 
 module.exports = router

@@ -4,7 +4,6 @@ const db = require('../db');
 const Profile = db.define('profile', {
     firstName: {
         type: DataTypes.STRING,
-        allowNull: false
     },
     
     lastName: {

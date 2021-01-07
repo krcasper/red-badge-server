@@ -7,16 +7,13 @@ const Entry = db.define('entry', {
         allowNull: false
     },
     entryDate: {
-        type: DataTypes.DATE
+        type: DataTypes.DATEONLY
     },
     entryDescription: {
         type: DataTypes.TEXT,
     },
 
     trip: {
-        type: DataTypes.INTEGER
-    },
-    owner: {
         type: DataTypes.INTEGER
     }
 })
