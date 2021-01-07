@@ -13,7 +13,7 @@ const Trip = db.define('trip', {
         type: DataTypes.STRING
     },
 
-    user: {
+    owner: {
         type: DataTypes.INTEGER
     }
 })

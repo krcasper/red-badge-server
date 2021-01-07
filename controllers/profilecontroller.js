@@ -21,10 +21,10 @@ router.get("/:id", validateSession, (req, res) => {
 // --> CREATE A NEW PROFILE PAGE
 router.post('/create', validateSession, async (req, res) => {
     try {
-        const {aboutMe, placesVisited, travelGoals} = req.body;
+        const {firstName, lastName, aboutMe, placesVisited, travelGoals} = req.body;
 
         let newProfile = await Profile.create({
-            aboutMe, placesVisited, travelGoals, user: req.user.id
+            firstName, lastName, aboutMe, placesVisited, travelGoals, owner: req.user.id
         });
 
         res.status(200).json({

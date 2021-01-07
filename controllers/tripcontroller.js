@@ -10,6 +10,11 @@ router.get('/', validateSession, (req, res) => {
     .catch(err => res.status(500).json({ error: err }))
 });
 
+// ---> FETCH ALL TRIPS FOR A specific USER - NOW WORKING!
+router.get("/:userID", validateSession, (req, res) => {
+  Trip.findAll({ where: { owner: req.user.id } })
+    .then((trip) => res.status(200).json(trip))
+
 // ---> FETCH A SINGLE TRIP
 //! NOT WORKING
 router.get("/:tripID", validateSession, (req, res) => {
@@ -24,7 +29,7 @@ router.post('/create', validateSession, async (req, res) => {
         const {tripName, tripDescription, tripMembers} = req.body;
 
         let newTrip = await Trip.create({
-            tripName, tripDescription, tripMembers, user: req.user.id
+            tripName, tripDescription, tripMembers, owner: req.user.id
         });
 
         res.status(200).json({
@@ -39,8 +44,32 @@ router.post('/create', validateSession, async (req, res) => {
     }
 })
 
+
+router.put('/update/:id', validateSession, function (req, res) {
+  console.log(req.body)
+  const updateTrip = {
+      tripName: req.body.tripName,
+      tripDescription: req.body.tripDescription,
+      tripMembers: req.body.tripMembers
+  };
+
+  Trip.findOne({ where: {id: req.params.id}})
+    .then((trip) => {
+      if (trip.owner !== req.user.id) {
+        res.status(403).json({message: "Forbidden"})
+
+      } else {
+        const query = { where: { id: req.params.id, owner: req.user.id }};
+
+        Trip.update(updateTrip, query)
+            .then(() => res.status(200).json({message: 'Trip has been updated!'}))
+            .catch((error) => res.status(500).json({ error: error.message || serverErrorMsg  }));
+      }
+    })
+  
+
 // --> UPDATE A TRIP (PUT):
-router.put("/:id", validateSession, (req, res) => {
+/* router.put("/:id", validateSession, (req, res) => {
       const query = req.params.id;
       Trip.update(req.body, { where: { id: query } })
         .then((tripsUpdated) => {
@@ -56,7 +85,16 @@ router.put("/:id", validateSession, (req, res) => {
         .catch((err) => res.json({
           err
         }));
+*/
+
 });
+
+// router.get("/:id", (req, res) => {
+//   Profile.findOne({ where: { user: req.params.user } })
+//     .then((profile) => res.status(200).json(profile))
+//     .catch((err) => res.status(500).json({ error: err }));
+// });
+
 
 
 // --> DELETE A TRIP:
@@ -69,33 +107,3 @@ router.delete('/:id', validateSession, (req, res) => {
   })
 
 module.exports = router;
-
-//! BEGIN CODE TO BE DELETED:
-// router.post('/create', (req, res) => {
-//     const tripCreate = {
-//         tripName: req.body.tripName,
-//         tripDescription: req.body.tripDescription,
-//         tripMembers: req.body.tripMembers
-//     }
-//     Trip.create(tripCreate)
-//         .then(trip => res.status(200).json({
-//             trip,
-//             message: "Trip successfully created!"
-//         }))
-//         .catch(err => res.status(500).json({ error: err }))
-// });
-
-// router.put('/:id', validateSession, (req, res) => {
-//     const updateTrip = {
-//         tripName: req.body.tripName,
-//         tripDescription: req.body.tripDescription,
-//         tripMembers: req.body.tripMembers,
-//     };
-
-//     const query = { where: { id: req.params.entryId, owner_id: req.user.id } };
-
-//     Trip.update(updateTrip, query)
-//     .then((trip) => res.status(200).json(trip))
-//     .catch((err) => res.status(500).json({ error: err }));
-// });
-//! END CODE THAT NEEDS TO BE DELETED
