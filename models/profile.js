@@ -2,6 +2,15 @@ const {DataTypes} = require('sequelize');
 const db = require('../db');
 
 const Profile = db.define('profile', {
+    firstName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    
+    lastName: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     aboutMe: {
         type: DataTypes.STRING,
         allowNull: true
@@ -17,7 +26,7 @@ const Profile = db.define('profile', {
         allowNull: true
     },
 
-    user: {
+    owner: {
         type: DataTypes.INTEGER
     }
 
