@@ -14,6 +14,12 @@ router.get('/', validateSession, (req, res) => {
 router.get("/:userID", validateSession, (req, res) => {
   Trip.findAll({ where: { owner: req.user.id } })
     .then((trip) => res.status(200).json(trip))
+
+// ---> FETCH A SINGLE TRIP
+//! NOT WORKING
+router.get("/:tripID", validateSession, (req, res) => {
+  Trip.findOne({ where: { trip: req.params.tripID } })
+    .then((profile) => res.status(200).json(profile))
     .catch((err) => res.status(500).json({ error: err }));
 });
 
@@ -38,6 +44,7 @@ router.post('/create', validateSession, async (req, res) => {
     }
 })
 
+
 router.put('/update/:id', validateSession, function (req, res) {
   console.log(req.body)
   const updateTrip = {
@@ -60,6 +67,26 @@ router.put('/update/:id', validateSession, function (req, res) {
       }
     })
   
+
+// --> UPDATE A TRIP (PUT):
+/* router.put("/:id", validateSession, (req, res) => {
+      const query = req.params.id;
+      Trip.update(req.body, { where: { id: query } })
+        .then((tripsUpdated) => {
+          Trip.findOne({ where: { id: query } })
+          .then((locatedUpdatedTrip) => {
+            res.status(200).json({
+              trip: locatedUpdatedTrip,
+              message: "Trip updated!",
+              tripsChanged: tripsUpdated,
+            });
+          });
+        })
+        .catch((err) => res.json({
+          err
+        }));
+*/
+
 });
 
 // router.get("/:id", (req, res) => {

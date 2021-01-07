@@ -11,7 +11,7 @@ router.get('/', validateSession, (req, res) => {
 });
 
 // --> GET A SPECIFIC USER PROFILE PAGE
-router.get("/:id", (req, res) => {
+router.get("/:id", validateSession, (req, res) => {
     Profile.findOne({ where: { user: req.params.user } })
       .then((profile) => res.status(200).json(profile))
       .catch((err) => res.status(500).json({ error: err }));
@@ -40,7 +40,7 @@ router.post('/create', validateSession, async (req, res) => {
 });
 
 // --> UPDATE AN EXISTING PROFILE PAGE
-router.put("/:id", (req, res) => {
+router.put("/:id", validateSession, (req, res) => {
       const query = req.params.id;
       Profile.update(req.body, { where: { id: query } })
         .then((profilesUpdated) => {
@@ -59,7 +59,7 @@ router.put("/:id", (req, res) => {
 });
 
 // --> DELETE A USER PROFILE PAGE
-router.delete('/:id', (req, res) => {
+router.delete('/:id', validateSession, (req, res) => {
   Profile.destroy({
     where: { id: req.params.id}
   })
