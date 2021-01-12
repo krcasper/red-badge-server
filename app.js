@@ -8,6 +8,7 @@ const app = express();
 const controllers = require('./controllers');
 
 app.use(express.json());
+app.use(require("./middleware/headers"));
 app.use('/users', controllers.usercontroller);
 app.use('/trip', controllers.tripcontroller);
 app.use('/profile', controllers.profilecontroller);

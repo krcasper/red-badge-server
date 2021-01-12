@@ -3,6 +3,15 @@ const User = require('./user');
 const Profile = require('./profile');
 const Entry = require('./entry');
 
+User.hasOne(Profile);
+Profile.belongsTo(User)
+
+User.hasMany(Trip);
+Trip.belongsTo(User)
+
+Trip.hasMany(Entry);
+Entry.belongsTo(Trip)
+
 module.exports = {Trip, User, Profile, Entry}
 
 /*

@@ -11,10 +11,6 @@ const Trip = db.define('trip', {
     },
     tripMembers: {
         type: DataTypes.STRING
-    },
-
-    owner: {
-        type: DataTypes.INTEGER
     }
 })
 

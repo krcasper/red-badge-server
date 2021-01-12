@@ -11,10 +11,6 @@ const Entry = db.define('entry', {
     },
     entryDescription: {
         type: DataTypes.TEXT,
-    },
-
-    trip: {
-        type: DataTypes.INTEGER
     }
 })
 

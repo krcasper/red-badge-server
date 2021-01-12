@@ -14,13 +14,14 @@ router.get('/', validateSession, (req, res) => {
 router.get("/my-trips", validateSession, (req, res) => {
   let userid = req.user.id
   Trip.findAll({
-      where: { owner: userid }
+      where: { userId: userid }
   })
   .then(trips => res.status(200).json(trips))
   .catch(err => res.status(500).json({ error: err }))
 });
 
 // ---> FETCH A SINGLE TRIP BY ID NUMBER
+//! NEEDS TO BE RESTRICTED TO A SINGLE USER??? OR ADMIN?
 router.get("/:id", validateSession, (req, res) => {
   Trip.findOne({ where: { id: req.params.id } })
     .then((trip) => res.status(200).json(trip))
@@ -33,7 +34,7 @@ router.post('/create', validateSession, async (req, res) => {
         const {tripName, tripDescription, tripMembers} = req.body;
 
         let newTrip = await Trip.create({
-            tripName, tripDescription, tripMembers, owner: req.user.id
+            tripName, tripDescription, tripMembers, userId: req.user.id
         });
 
         res.status(200).json({
@@ -59,11 +60,11 @@ router.put('/update/:id', validateSession, function (req, res) {
 
   Trip.findOne({ where: {id: req.params.id}})
     .then((trip) => {
-      if (trip.owner !== req.user.id) {
+      if (trip.userId !== req.user.id) {
         res.status(403).json({message: "Forbidden"})
 
       } else {
-        const query = { where: { id: req.params.id, owner: req.user.id }};
+        const query = { where: { id: req.params.id, userId: req.user.id }};
 
         Trip.update(updateTrip, query)
             .then(() => res.status(200).json({message: 'Trip has been updated!'}))
@@ -85,13 +86,13 @@ router.delete('/:id', validateSession, (req, res) => {
 
 // --> CREATING ENTRY FOR A TRIP (from entry.js model)
 
-router.post('/:tripID/new-entry', validateSession, async (req, res) => {
+router.post('/:tripId/new-entry', validateSession, async (req, res) => {
   console.log(req.params)
   try {
       const {entryName, entryDate, entryDescription} = req.body;
 
       let newEntry = await Entry.create({
-          entryName, entryDate, entryDescription, trip: req.params.tripID
+          entryName, entryDate, entryDescription, tripId: req.params.tripId
       });
 
       res.status(200).json({
@@ -107,10 +108,12 @@ router.post('/:tripID/new-entry', validateSession, async (req, res) => {
 });
 
 // --> GET ALL ENTRIES FOR A SINGLE TRIP
-router.get("/:tripID/entries", validateSession, (req, res) => {
-  Entry.findAll({ where: { trip: req.params.tripID } })
+router.get("/:tripId/entries", validateSession, (req, res) => {
+  Entry.findAll({ where: { tripId: req.params.tripId } })
     .then((trip) => res.status(200).json(trip))
     .catch(err => res.json(err))
-});
+
+
+  });
 
 module.exports = router

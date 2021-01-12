@@ -24,37 +24,57 @@ router.get("/:username", validateSession, (req, res) => {
 });
 
 // --> CREATE NEW USER
-router.post('/register', async (req, res) => {
-//object deconstructing to separate data when sent in the body;
-let { username, email, password, checkAdmin } = req.body; 
+// router.post('/register', async (req, res) => {
+// //object deconstructing to separate data when sent in the body;
+// let { username, email, password, checkAdmin } = req.body; 
 
-try {
-    const newUser = await User.create({
-    username,
-    email, 
-    password: bcrypt.hashSync(password, 13),
-    checkAdmin
+// try {
+//     const newUser = await User.create({
+//     username,
+//     email, 
+//     password: bcrypt.hashSync(password, 13),
+//     checkAdmin
+//     })
+//     res.status(201).json({
+//     message: "User registered!",
+//     user: newUser
+//     })
+// } catch (error) {
+//     if (error instanceof UniqueConstraintError) {
+//     res.status(409).json({
+//         message: "Email already in use."
+//     })
+//     } else {
+//     res.status(500).json({
+//         error: "Failed to register user."
+//     })
+//     }
+// }
+// });
+
+router.post('/register', function(req, res) {
+
+    User.create({
+        email: req.body.email,
+        username: req.body.username,
+        password: bcrypt.hashSync(req.body.password, 13)
     })
-    res.status(201).json({
-    message: "User registered!",
-    user: newUser
-    })
-} catch (error) {
-    if (error instanceof UniqueConstraintError) {
-    res.status(409).json({
-        message: "Email already in use."
-    })
-    } else {
-    res.status(500).json({
-        error: "Failed to register user."
-    })
-    }
-}
+        .then(
+            function createSuccess(user) {
+                let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
+                res.json({
+                    user: user,
+                    message: 'User successfully created!',
+                    sessionToken: token
+                });
+            }  
+        )
+        .catch(err => res.status(500).json({ error: err }))
 });
-  
 
 // --> USER LOGIN:
 router.post('/login', function(req, res) {
+    console.log(req.body)
     User.findOne({
         where: {
             username: req.body.username

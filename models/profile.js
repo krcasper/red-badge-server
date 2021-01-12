@@ -23,10 +23,6 @@ const Profile = db.define('profile', {
     travelGoals: {
         type: DataTypes.STRING,
         allowNull: true
-    },
-
-    owner: {
-        type: DataTypes.INTEGER
     }
 
 })
