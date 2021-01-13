@@ -90,10 +90,10 @@ router.delete('/:id', validateSession, (req, res) => {
 router.post('/:tripId/new-entry', validateSession, async (req, res) => {
   console.log(req.params)
   try {
-      const {entryName, entryDate, entryDescription} = req.body;
+      const {entryDate, entryName, entryDescription} = req.body;
 
       let newEntry = await Entry.create({
-          entryName, entryDate, entryDescription, tripId: req.params.tripId
+          entryDate, entryName, entryDescription, tripId: req.params.tripId
       });
 
       res.status(200).json({

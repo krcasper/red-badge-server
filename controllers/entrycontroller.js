@@ -25,8 +25,8 @@ router.get("/:id", validateSession, (req, res) => {
 router.put('/update/:id', validateSession, function (req, res) {
     console.log(req.body)
     const updateEntry = {
+      entryDate: req.body.entryDate,
         entryName: req.body.entryName,
-        entryDate: req.body.entryDate,
         entryDescription: req.body.entryDescription
     };
   
