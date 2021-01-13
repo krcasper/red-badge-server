@@ -30,6 +30,7 @@ router.get("/:id", validateSession, (req, res) => {
 
 // --> POST/CREATE A NEW TRIP:
 router.post('/create', validateSession, async (req, res) => {
+  console.log(req.body)
     try {
         const {tripName, tripDescription, tripMembers} = req.body;
 
@@ -44,7 +45,7 @@ router.post('/create', validateSession, async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            message: 'Trip Creation Failed'
+            message: 'Trip Creation Failed here'
         })
     }
 })
@@ -108,7 +109,13 @@ router.post('/:tripId/new-entry', validateSession, async (req, res) => {
 });
 
 // --> GET ALL ENTRIES FOR A SINGLE TRIP
-router.get("/:tripId/entries", validateSession, (req, res) => {
+router.get("/:tripId/entries", validateSession, async (req, res) => {
+  const trip = await Trip.findOne({ where: { id: req.params.tripId }});
+  if (trip.userId !== req.user.id) {
+    res.status(401).json({ message: 'Forbidden' });
+    return;
+  }
+  
   Entry.findAll({ where: { tripId: req.params.tripId } })
     .then((trip) => res.status(200).json(trip))
     .catch(err => res.json(err))

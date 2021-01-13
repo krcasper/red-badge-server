@@ -7,10 +7,10 @@ const Entry = db.define('entry', {
         allowNull: false
     },
     entryDate: {
-        type: DataTypes.DATEONLY
+        type: DataTypes.STRING
     },
     entryDescription: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
     }
 })
 
