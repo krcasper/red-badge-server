@@ -21,8 +21,7 @@ const User = db.define('user', {
     },
 
     checkAdmin: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+        type: DataTypes.BOOLEAN
     },
 })
 

@@ -9,11 +9,15 @@ const { UniqueConstraintError } = require('sequelize/lib/errors');
 
 // --> GET ALL USERS (ADMIN)
 router.get('/', validateSession, (req, res) => {
+    if (req.user.checkAdmin === false) {
+        res.status(404).json({ message: "Admin-Only"})
+    } else {
     User.findAll() 
     .then(user => res.status(200).json(user))
     .catch(err => res.status(500).json({
         error: err
     }))
+}
 });
 
 // --> GET USER BY USERNAME
@@ -24,40 +28,13 @@ router.get("/:username", validateSession, (req, res) => {
 });
 
 // --> CREATE NEW USER
-// router.post('/register', async (req, res) => {
-// //object deconstructing to separate data when sent in the body;
-// let { username, email, password, checkAdmin } = req.body; 
-
-// try {
-//     const newUser = await User.create({
-//     username,
-//     email, 
-//     password: bcrypt.hashSync(password, 13),
-//     checkAdmin
-//     })
-//     res.status(201).json({
-//     message: "User registered!",
-//     user: newUser
-//     })
-// } catch (error) {
-//     if (error instanceof UniqueConstraintError) {
-//     res.status(409).json({
-//         message: "Email already in use."
-//     })
-//     } else {
-//     res.status(500).json({
-//         error: "Failed to register user."
-//     })
-//     }
-// }
-// });
-
 router.post('/register', function(req, res) {
 
     User.create({
         email: req.body.email,
         username: req.body.username,
-        password: bcrypt.hashSync(req.body.password, 13)
+        password: bcrypt.hashSync(req.body.password, 13),
+        checkAdmin: req.body.checkAdmin
     })
         .then(
             function createSuccess(user) {
@@ -101,6 +78,43 @@ router.post('/login', function(req, res) {
         }
     })
     .catch(err => res.status(500).json({ error: err }))
+});
+
+// ----> EDIT USER [ADMIN ONLY]
+router.put('/:id', validateSession, function (req, res) {
+    const updateUser = {
+        email: req.body.email,
+        username: req.body.username,
+        checkAdmin: req.body.checkAdmin
+    };
+  
+    User.findOne({ where: {id: req.params.id}})
+      .then((user) => {
+        if (req.user.checkAdmin === false) {
+            res.status(404).json({ message: "Admin-Only"})
+        } else {
+          const query = { where: { id: req.params.id }};
+  
+          User.update(updateUser, query)
+              .then(() => res.status(200).json({message: 'User has been updated!'}))
+              .catch((error) => res.status(500).json({ error: error.message || serverErrorMsg  }));
+        }
+      })
+  });
+
+
+
+// -----> DELETE USER [ADMIN ONLY]
+router.delete('/:id', validateSession, (req, res) => {
+    if (req.user.checkAdmin === false) {
+        res.status(404).json({ message: "Admin-Only: Delete"})
+    } else {
+    User.destroy({
+      where: { id: req.params.id}
+    })
+    .then(() => res.status(200).json({message: 'User has been deleted!'}))
+    .catch(err => res.json(err))
+}
 });
 
 module.exports = router
