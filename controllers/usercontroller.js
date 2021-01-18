@@ -3,6 +3,8 @@ const router = express.Router();
 const {User} = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+let {roles} = require('../roles');
+const AccessControl = require('accesscontrol')
 const validateSession = require('../middleware/validate-session');
 
 const { UniqueConstraintError } = require('sequelize/lib/errors');
@@ -24,40 +26,15 @@ router.get("/:username", validateSession, (req, res) => {
 });
 
 // --> CREATE NEW USER
-// router.post('/register', async (req, res) => {
-// //object deconstructing to separate data when sent in the body;
-// let { username, email, password, checkAdmin } = req.body; 
 
-// try {
-//     const newUser = await User.create({
-//     username,
-//     email, 
-//     password: bcrypt.hashSync(password, 13),
-//     checkAdmin
-//     })
-//     res.status(201).json({
-//     message: "User registered!",
-//     user: newUser
-//     })
-// } catch (error) {
-//     if (error instanceof UniqueConstraintError) {
-//     res.status(409).json({
-//         message: "Email already in use."
-//     })
-//     } else {
-//     res.status(500).json({
-//         error: "Failed to register user."
-//     })
-//     }
-// }
-// });
-
+//# ORIGINAL CODE - UNCOMMENT IF REVERTING TO MASTER
 router.post('/register', function(req, res) {
 
     User.create({
         email: req.body.email,
         username: req.body.username,
-        password: bcrypt.hashSync(req.body.password, 13)
+        password: bcrypt.hashSync(req.body.password, 13),
+        role: req.body.role || "user"
     })
         .then(
             function createSuccess(user) {
@@ -102,5 +79,7 @@ router.post('/login', function(req, res) {
     })
     .catch(err => res.status(500).json({ error: err }))
 });
+
+
 
 module.exports = router

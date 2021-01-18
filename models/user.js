@@ -21,8 +21,8 @@ const User = db.define('user', {
     },
 
     checkAdmin: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+        type: DataTypes.ENUM('user', 'admin'),
+        defaultValue: 'user'
     },
 })
 
