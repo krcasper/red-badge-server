@@ -6,11 +6,17 @@ const Trip = db.define('trip', {
         type: DataTypes.STRING,
         allowNull:  false
     },
-    tripDescription: {
+    tripDestination: {
         type: DataTypes.STRING,
     },
-    tripMembers: {
+    tripStartDate: {
         type: DataTypes.STRING
+    },
+    tripEndDate: {
+        type: DataTypes.STRING
+    },
+    tripDescription: {
+        type: DataTypes.STRING,
     }
 })
 

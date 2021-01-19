@@ -32,10 +32,10 @@ router.get("/:id", validateSession, (req, res) => {
 router.post('/create', validateSession, async (req, res) => {
   console.log(req.body)
     try {
-        const {tripName, tripDescription, tripMembers} = req.body;
+        const {tripName, tripDestination, tripStartDate, tripEndDate, tripDescription} = req.body;
 
         let newTrip = await Trip.create({
-            tripName, tripDescription, tripMembers, userId: req.user.id
+            tripName, tripDestination, tripStartDate, tripEndDate, tripDescription, userId: req.user.id
         });
 
         res.status(200).json({
@@ -55,8 +55,10 @@ router.put('/update/:id', validateSession, function (req, res) {
   console.log(req.body)
   const updateTrip = {
       tripName: req.body.tripName,
-      tripDescription: req.body.tripDescription,
-      tripMembers: req.body.tripMembers
+      tripDestination: req.body.tripDestination,
+      tripStartDate: req.body.tripStartDate,
+      tripEndDate: req.body.tripEndDate,
+      tripDescription: req.body.tripDescription
   };
 
   Trip.findOne({ where: {id: req.params.id}})

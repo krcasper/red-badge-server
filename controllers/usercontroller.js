@@ -7,7 +7,7 @@ const validateSession = require('../middleware/validate-session');
 
 const { UniqueConstraintError } = require('sequelize/lib/errors');
 
-// --> GET ALL USERS (ADMIN)
+// --> GET ALL USERS [ADMIN ONLY]
 router.get('/', validateSession, (req, res) => {
     if (req.user.checkAdmin === false) {
         res.status(404).json({ message: "Admin-Only"})
@@ -20,12 +20,23 @@ router.get('/', validateSession, (req, res) => {
 }
 });
 
-// --> GET USER BY USERNAME
-router.get("/:username", validateSession, (req, res) => {
-    User.findOne({ where: { username: req.params.username } })
-      .then((user) => res.status(200).json(user))
-      .catch((err) => res.status(500).json({ error: err }));
+// --> GET USER BY USER ID [ADMIN ONLY]
+router.get("/:id", validateSession, (req, res) => {
+
+    if (req.user.checkAdmin === false) {
+        res.status(404).json({ message: "Admin-Only: Delete"})
+    } else {
+    User.findOne({
+      where: { id: req.params.id}
+    })
+    .then((user) => res.status(200).json(user))
+    .catch(err => res.status(500).json({
+        error: err
+    }))
+}
 });
+
+
 
 // --> CREATE NEW USER
 router.post('/register', function(req, res) {
