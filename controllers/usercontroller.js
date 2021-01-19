@@ -20,20 +20,11 @@ router.get('/', validateSession, (req, res) => {
 }
 });
 
-// --> GET USER BY USER ID [ADMIN ONLY]
-router.get("/:id", validateSession, (req, res) => {
+// ---> MY USER
 
-    if (req.user.checkAdmin === false) {
-        res.status(404).json({ message: "Admin-Only"})
-    } else {
-    User.findOne({
-      where: { id: req.params.id}
-    })
-    .then((user) => res.status(200).json(user))
-    .catch(err => res.status(500).json({
-        error: err
-    }))
-}
+router.get('/my-user', validateSession, async (req, res) => {
+    const user = await User.findOne({ where: {id: req.user.id}});
+    res.status(200).json(user)
 });
 
 // --> CREATE NEW USER
@@ -123,6 +114,22 @@ router.delete('/:id', validateSession, (req, res) => {
     })
     .then(() => res.status(200).json({message: 'User has been deleted!'}))
     .catch(err => res.json(err))
+}
+});
+
+// --> GET USER BY USER ID [ADMIN ONLY]
+router.get("/:id", validateSession, (req, res) => {
+
+    if (req.user.checkAdmin === false) {
+        res.status(404).json({ message: "Admin-Only"})
+    } else {
+    User.findOne({
+      where: { id: req.params.id}
+    })
+    .then((user) => res.status(200).json(user))
+    .catch(err => res.status(500).json({
+        error: err
+    }))
 }
 });
 
