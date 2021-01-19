@@ -3,11 +3,15 @@ const router = express.Router();
 const {Trip, Entry} = require('../models');
 const validateSession = require('../middleware/validate-session');
 
-// --> FETCH ALL TRIPS 
+// --> FETCH ALL TRIPS [ADMIN ONLY]
 router.get('/', validateSession, (req, res) => {
-    Trip.findAll()
+  if (req.user.checkAdmin === false) {
+    res.status(404).json({ message: "Admin-Only"})
+} else {
+  Trip.findAll()
     .then(trips => res.status(200).json(trips))
     .catch(err => res.status(500).json({ error: err }))
+}
 });
 
 // --> FETCH ALL TRIPS FOR A SINGLE USER (must have token!)
@@ -20,22 +24,27 @@ router.get("/my-trips", validateSession, (req, res) => {
   .catch(err => res.status(500).json({ error: err }))
 });
 
-// ---> FETCH A SINGLE TRIP BY ID NUMBER
-//! NEEDS TO BE RESTRICTED TO A SINGLE USER??? OR ADMIN?
-router.get("/:id", validateSession, (req, res) => {
-  Trip.findOne({ where: { id: req.params.id } })
-    .then((trip) => res.status(200).json(trip))
-    .catch((err) => res.status(500).json({ error: err }));
-});
+
+//! NOT CURRENTLY IMPLEMENTED:
+// FETCH A SINGLE TRIP BY ID NUMBER
+// router.get("/:id", validateSession, (req, res) => {
+  
+//   Trip.findOne({ where: { id: req.params.id } })
+//     .then((trip) => res.status(200).json(trip))
+//     .catch((err) => res.status(500).json({ error: err }));
+// });
+
+
+
 
 // --> POST/CREATE A NEW TRIP:
 router.post('/create', validateSession, async (req, res) => {
   console.log(req.body)
     try {
-        const {tripName, tripDescription, tripMembers} = req.body;
+        const {tripName, tripDescription, tripDates} = req.body;
 
         let newTrip = await Trip.create({
-            tripName, tripDescription, tripMembers, userId: req.user.id
+            tripName, tripDescription, tripDates, userId: req.user.id
         });
 
         res.status(200).json({
@@ -56,7 +65,7 @@ router.put('/update/:id', validateSession, function (req, res) {
   const updateTrip = {
       tripName: req.body.tripName,
       tripDescription: req.body.tripDescription,
-      tripMembers: req.body.tripMembers
+      tripDates: req.body.tripDates
   };
 
   Trip.findOne({ where: {id: req.params.id}})
@@ -76,11 +85,21 @@ router.put('/update/:id', validateSession, function (req, res) {
 
 // --> DELETE A TRIP:
 router.delete('/:id', validateSession, (req, res) => {
-    Trip.destroy({
-      where: { id: req.params.id}
+  Trip.findOne({ where: {id: req.params.id}})
+    .then((trip) => {
+      if (trip.userId !== req.user.id) {
+        res.status(403).json({message: "Forbidden"})
+
+      } else {
+
+        Trip.destroy({
+          where: { id: req.params.id}
+        })
+
+        .then(() => res.status(200).json({ message: "Trip has been deleted."})
+        .catch(err => res.json(err)))
+      }
     })
-    .then(trip => res.status(200).json(trip))
-    .catch(err => res.json(err))
 })
 
 
@@ -90,6 +109,12 @@ router.delete('/:id', validateSession, (req, res) => {
 router.post('/:tripId/new-entry', validateSession, async (req, res) => {
   console.log(req.params)
   try {
+      const trip = await Trip.findOne({ where: {id: req.params.tripId}});
+      if (trip.userId !== req.user.id) {
+        res.status(403).json({message: "Forbidden"})
+        return;
+      }
+
       const {entryDate, entryName, entryDescription} = req.body;
 
       let newEntry = await Entry.create({
@@ -107,6 +132,7 @@ router.post('/:tripId/new-entry', validateSession, async (req, res) => {
       })
   }
 });
+
 
 // --> GET ALL ENTRIES FOR A SINGLE TRIP
 router.get("/:tripId/entries", validateSession, async (req, res) => {

@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(require("./middleware/headers"));
 app.use('/users', controllers.usercontroller);
 app.use('/trip', controllers.tripcontroller);
-app.use('/profile', controllers.profilecontroller);
+// app.use('/profile', controllers.profilecontroller); NOT IN USE
 app.use('/entry', controllers.entrycontroller);
 
 // The following line of code db.authenticate() sets up our link to our database and takes in a Promise function. We then use .then as our "promise resolver":
